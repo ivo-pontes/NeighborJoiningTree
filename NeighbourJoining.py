@@ -12,12 +12,7 @@ class NeighbourJoining():
 		#Nós U, que serão os nós internos da árvore
 		#self.node = 
 
-
-	def differenceMatrix(self):
-		
-		'''
-		Por ora, estamos setando a matriz com as diferenças
-		'''
+	def execute(self):
 		self.d = [
 		   # A  B  C  D  E  F
 			[0, 0, 0, 0, 0, 0],	#A
@@ -28,6 +23,21 @@ class NeighbourJoining():
 			[8, 11, 8, 9, 8, 0] #F
 		]
 
+		while len(self.d) > 2:
+			self.differenceMatrix()
+
+			self.stepsOneTwo()
+
+			self.stepThree()
+
+			self.stepFour()
+
+	def differenceMatrix(self):
+		
+		'''
+		Por ora, estamos setando a matriz com as diferenças
+		'''
+		#self.d = matrix
 		#Quantidade de Linhas/Colunas
 		self.TAM = len(self.d[0])
 
@@ -52,8 +62,6 @@ class NeighbourJoining():
 
 	def stepsOneTwo(self):
 
-		self.differenceMatrix()
-
 		self.somas = []
 
 		for i in range(0,self.TAM):
@@ -61,24 +69,22 @@ class NeighbourJoining():
 
 		print(self.somas)
 
-
 		self.m = np.zeros([self.TAM, self.TAM])
 
 		#print(self.m)
 
 		for i in range(1,self.TAM):
-			for j in range(0,self.TAM-1):
+			for j in range(0,self.TAM):
 				if j < i:
 					self.m[i][j] = self.d[i][j] - self.somas[i] - self.somas[j]
 
 		#print(self.m)
-		print("Fim dos Passos 1 e 2\n")
+		#print("Fim dos Passos 1 e 2\n")
 
 
 	'''
 	From here, step 3
 	'''
-
 	def stepThree(self):
 		self.minMatrix()
 
@@ -102,24 +108,25 @@ class NeighbourJoining():
 
 
 	def minMatrix(self):
-		minimum = 1000
+		minimum = 10000
 		self.min = np.zeros(2).astype(int)
-
+		print("Vamo lá:\n")
+		print(self.m)
 		for i in range(1,self.TAM):
 			for j in range(0,self.TAM-1):
-				if j < i:
-					if self.m[i][j] < minimum:
-						minimum = self.m[i][j]
-						self.min[0] = i
-						self.min[1] = j
+				if j < i and self.m[i][j] < minimum:
+					minimum = self.m[i][j]
+					self.min[0] = i
+					self.min[1] = j
 
 	'''
 	From here, step 4
 	'''
 	def stepFour(self):
 		mu1 = np.zeros([self.TAM, self.TAM])
-		mu2 = mu1
 
+		print("Passo 4.")
+		print(self.d)
 		for i in range(1,self.TAM):
 			for j in range(1,self.TAM-1):
 				if i == self.node.uPositions[0] or i == self.node.uPositions[1]:
@@ -129,24 +136,23 @@ class NeighbourJoining():
 				else:
 					mu1[i][j] = self.d[i][j]
 				
-		print(mu1)
+		#print(mu1)
 
 		for i in range(2,self.TAM):
 			for j in range(0,self.TAM):
 				if j < i and i == self.node.uPositions[0] and i == self.node.uPositions[1] and j == self.node.uPositions[0] or j == self.node.uPositions[1]:
 					mu1[i][j] = self.d[i][self.node.uPositions[0]] - self.node.uDistances[1]
-					#print("Dac: %s, Sua1: %s" %(self.d[i][self.node.uPositions[0]], self.node.uDistances[1]))
+					print("Dac: %s, Sua1: %s" %(self.d[i][self.node.uPositions[0]], self.node.uDistances[1]))
 			#print("\n")
 
-		print(mu1)
+		#print(mu1)
 		#mu2 = np.delete(mu1,0,0) #deletar linha 0 de mu1
 		mu1 = np.delete(mu1,self.node.uPositions[0], 1)
+		mu1 = np.delete(mu1,0,0)
 		#print(mu1)
 
-		#mu1 = mu1[~np.all(mu1 == 0, axis=0)]		
-		#mu1 = mu1[~np.all(mu1 == 0, axis=1)]
-		
-		#print(mu1)
+		self.d = mu1
+
 '''
 A = np.delete(A, 1, 0)  # delete second row of A
 B = np.delete(B, 2, 0)  # delete third row of B

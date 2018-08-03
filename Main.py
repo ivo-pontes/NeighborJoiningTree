@@ -10,10 +10,6 @@ if __name__ == '__main__':
 
 	nj = NeighbourJoining(seqs)
 
-	nj.stepsOneTwo()
-
-	nj.stepThree()
-
-	nj.stepFour()
+	nj.execute()
 
 	print("Fim de execução!!")
