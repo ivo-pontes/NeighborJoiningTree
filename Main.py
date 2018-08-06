@@ -8,8 +8,7 @@ if __name__ == '__main__':
 
 	seqs = [['AUGC'],['ACGC'],['ACGC']]
 
-	nj = NeighbourJoining(seqs)
-
+	nj = NeighbourJoining()
 	nj.execute()
 
 	print("Fim de execução!!")

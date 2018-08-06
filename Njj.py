@@ -5,7 +5,7 @@ from __future__ import division
 import numpy as np
 from Node import Node
 
-class NeighbourJoining():
+class Njj():
 	def __init__(self):
 		self.nodes = []
 
@@ -20,14 +20,6 @@ class NeighbourJoining():
 			[8, 11, 8, 9, 8, 0] #F
 		]
 		
-		self.d = [
-		   # A  B   C  D  E
-			[0, 0,  0, 0, 0],	#A
-			[.23, 0,  0, 0, 0],	#B
-			[.873, .59, 0, 0, 0],	#C
-			[.73, 1.12, .17, 0, 0],#D
-			[.59, .89,  .61, .31, 0],	#E
-		]
 		#self.backup = self.d
 		self.n = len(self.d[0])
 
@@ -38,6 +30,9 @@ class NeighbourJoining():
 			self.stepThree()
 			self.stepFour()
 			self.stepFive()
+
+		for i in range(len(self.nodes)):
+			self.nodes[i] = self.nodes[i].reverse()
 
 		print(self.nodes)
 
@@ -160,12 +155,7 @@ class NeighbourJoining():
 					self.Mdu[i][j] = self.dx[i][j-1]
 		
 		#print(self.Mdu)
-		self.nodes.append(self.node.uPositions[::-1])
+		self.nodes.append(self.node.uPositions)
 		self.d = self.Mdu
 		#print(self.Mdu)
 		self.n = self.n -1
-'''
-A = np.delete(A, 1, 0)  # delete second row of A
-B = np.delete(B, 2, 0)  # delete third row of B
-C = np.delete(C, 1, 1)  # delete second column of C
-'''
