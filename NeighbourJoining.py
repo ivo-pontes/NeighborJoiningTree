@@ -28,8 +28,10 @@ class NeighbourJoining():
 
 		tree = Tree()
 		#print(self.sequencias)
-		print(tree.normalizarMatriz(self.sequencias))
-		self.d = self.sequencias
+		tree.normalizarMatriz(self.sequencias)
+		tree.gerarMatrizDistancias()
+		#print(tree.d)
+		self.d = tree.d
 
 		'''
 		self.d = [
@@ -43,7 +45,7 @@ class NeighbourJoining():
 		'''
 		#self.backup = self.d
 		self.n = len(self.d[0])
-		'''
+
 		while self.n > 2:
 			self.differenceMatrix()
 			self.stepOne()
@@ -53,7 +55,7 @@ class NeighbourJoining():
 			self.stepFive()
 
 		print(self.nodes)
-		'''
+
 		# Generate a random tree (yule process)
 		#t = Tree("((((a,b), c), d), (e,f));")
 		#t.populate(8, names_library=list('ABCDEFGHIJKL'), random_branches=True)
@@ -157,11 +159,11 @@ class NeighbourJoining():
 		self.Mdu = np.zeros([self.TAM-1, self.TAM-1])
 		self.aux = np.zeros([self.TAM-1, 1])
 
-		if len(self.du) > 1:
+		if len(self.du) > 2:
 			for i in range(1, len(self.Mdu)):
 				self.aux[i][0] = (self.du[i-1])
 		else:
-			pass#print(self.du)
+			pass #print(self.du)
 
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
 		self.dx = np.delete(self.dx,self.node.uPositions[1], 1)
@@ -174,7 +176,7 @@ class NeighbourJoining():
 			for j in range(len(self.Mdu)-1):
 				if j == 0:
 					self.Mdu[i][j] = self.aux[i][j]
-				elif i < len(self.Mdu):
+				elif i < len(self.Mdu)-1:
 					self.Mdu[i][j] = self.dx[i][j-1]
 		
 		#print(self.Mdu)
