@@ -2,13 +2,27 @@
 # -*- coding: utf-8 -*
 
 from NeighbourJoining import NeighbourJoining
+from Files import Files
 
 
 if __name__ == '__main__':
 
-	seqs = [['AUGC'],['ACGC'],['ACGC']]
+	files = Files()
+	files.open("arq.fasta")
 
-	nj = NeighbourJoining()
+
+	nj = NeighbourJoining(files.getLabels(), files.getSequencias())
 	nj.execute()
+
+	'''
+	matrix = [
+		"AGCCTGAAGCTTTAGCCC",
+		"AGTTCACGT",
+		"ATCCCGAATTGA",
+		"GGCTAAAGTCATGA"
+	]
+	util = Utils()
+	print(util.normalizaMatrix(matrix))
+	'''
 
 	print("Fim de execução!!")
