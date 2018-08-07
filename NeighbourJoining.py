@@ -14,7 +14,17 @@ class NeighbourJoining():
 		self.sequencias = sequencias
 
 	def execute(self):
-		'''
+
+
+		tree = Tree()
+		#print(self.sequencias)
+		tree.normalizarMatriz(self.sequencias)
+		tree.gerarMatrizDistancias()
+		#print(tree.d)
+		self.d = tree.d
+
+
+		#Super Teste
 		self.d = [
 		   # A  B  C  D  E  F
 			[0, 0, 0, 0, 0, 0],	#A
@@ -24,27 +34,9 @@ class NeighbourJoining():
 			[6, 9, 6, 5, 0, 0],	#E
 			[8, 11, 8, 9, 8, 0] #F
 		]
-		'''
 
-		tree = Tree()
-		#print(self.sequencias)
-		tree.normalizarMatriz(self.sequencias)
-		tree.gerarMatrizDistancias()
-		#print(tree.d)
-		self.d = tree.d
-
-		'''
-		self.d = [
-		   # A  B   C  D  E
-			[0, 0,  0, 0, 0],	#A
-			[.23, 0,  0, 0, 0],	#B
-			[.873, .59, 0, 0, 0],	#C
-			[.73, 1.12, .17, 0, 0],#D
-			[.59, .89,  .61, .31, 0],	#E
-		]
-		'''
-		#self.backup = self.d
 		self.n = len(self.d[0])
+		#self.n = 3
 
 		while self.n > 2:
 			self.differenceMatrix()
@@ -138,13 +130,16 @@ class NeighbourJoining():
 		sumU1 = p1/2 + (self.r[0] - self.r[1])/(2*(self.TAM-2))
 		sumU2 = p1 - sumU1
 		
-		#print("Sau1: %s\n" %(sumU1))
-		#print("Sbu1: %s\n" %(sumU2))
+		print("Sau1: %s\n" %(sumU1))
+		print("Sbu1: %s\n" %(sumU2))
 		
 		distancias = [sumU1,sumU2]
 		posicoes = [self.min[0], self.min[1]]
 		self.node = Node(distancias, posicoes)
 
+	'''
+	Step Five com problemas
+	'''
 	def stepFive(self):
 		self.du = []
 
@@ -159,11 +154,16 @@ class NeighbourJoining():
 		self.Mdu = np.zeros([self.TAM-1, self.TAM-1])
 		self.aux = np.zeros([self.TAM-1, 1])
 
+
+		'''
+		Erro aqui, página 169 self.du[i-1] index out of range
+		'''
 		if len(self.du) > 2:
 			for i in range(1, len(self.Mdu)):
-				self.aux[i][0] = (self.du[i-1])
-		else:
-			pass #print(self.du)
+				self.aux[i][0] = self.du[i-1]
+		
+		print(self.n)
+		print(self.aux)
 
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
 		self.dx = np.delete(self.dx,self.node.uPositions[1], 1)
@@ -176,17 +176,19 @@ class NeighbourJoining():
 			for j in range(len(self.Mdu)-1):
 				if j == 0:
 					self.Mdu[i][j] = self.aux[i][j]
-				elif i < len(self.Mdu)-1:
+				elif i <= len(self.Mdu):
 					self.Mdu[i][j] = self.dx[i][j-1]
 		
-		#print(self.Mdu)
-		#self.nodes.append(self.node.uPositions[::-1])
+		print(self.n)
+		print(self.Mdu)
+		self.nodes.append(self.node.uPositions[::-1])
 		#self.nodes.append(self.node.__dict__)
 		self.d = self.Mdu
 		#print(self.Mdu)
 		self.n = self.n -1
-'''
-A = np.delete(A, 1, 0)  # delete second row of A
-B = np.delete(B, 2, 0)  # delete third row of B
-C = np.delete(C, 1, 1)  # delete second column of C
-'''
+
+		'''
+		A = np.delete(A, 1, 0)  # delete second row of A
+		B = np.delete(B, 2, 0)  # delete third row of B
+		C = np.delete(C, 1, 1)  # delete second column of C
+		'''
