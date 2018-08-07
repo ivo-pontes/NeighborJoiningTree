@@ -17,18 +17,26 @@ class Files():
 		arquivo = open(filename)
 		sg = ''
 		
+		linhas = arquivo.readlines()
 
-		for l in arquivo.readlines():
+		for l in linhas:
+			#print(l[0])
 			if l[0] != '>':
 				sg += l
+				#print(sg)
 			else:
 				sg = sg.replace('\n', '')
 				self.sequencias.append(sg)
 				sg = ''
 				l = l.strip().split(' ')
+				#print(l[0])
 				self.labels.append(l[0].replace('>sp|', ''))
 
-		arquivo.close() 
+		sg = sg.replace('\n','')
+		self.sequencias.append(sg)
+
+		arquivo.close()
+		#print(self.sequencias)
 		self.sequencias = self.sequencias[1::]
 		#print(self.labels)
 		#print(self.sequencias)
