@@ -4,12 +4,17 @@
 from __future__ import division
 import numpy as np
 from Node import Node
+from ete3 import Tree
+from Tree import Tree
 
 class NeighbourJoining():
-	def __init__(self):
+	def __init__(self, labels, sequencias):
 		self.nodes = []
+		self.labels = labels
+		self.sequencias = sequencias
 
 	def execute(self):
+		'''
 		self.d = [
 		   # A  B  C  D  E  F
 			[0, 0, 0, 0, 0, 0],	#A
@@ -19,7 +24,14 @@ class NeighbourJoining():
 			[6, 9, 6, 5, 0, 0],	#E
 			[8, 11, 8, 9, 8, 0] #F
 		]
-		
+		'''
+
+		tree = Tree()
+		#print(self.sequencias)
+		print(tree.normalizarMatriz(self.sequencias))
+		self.d = self.sequencias
+
+		'''
 		self.d = [
 		   # A  B   C  D  E
 			[0, 0,  0, 0, 0],	#A
@@ -28,9 +40,10 @@ class NeighbourJoining():
 			[.73, 1.12, .17, 0, 0],#D
 			[.59, .89,  .61, .31, 0],	#E
 		]
+		'''
 		#self.backup = self.d
 		self.n = len(self.d[0])
-
+		'''
 		while self.n > 2:
 			self.differenceMatrix()
 			self.stepOne()
@@ -40,6 +53,11 @@ class NeighbourJoining():
 			self.stepFive()
 
 		print(self.nodes)
+		'''
+		# Generate a random tree (yule process)
+		#t = Tree("((((a,b), c), d), (e,f));")
+		#t.populate(8, names_library=list('ABCDEFGHIJKL'), random_branches=True)
+		#t.render('tree.png', dpi=200)
 
 	def differenceMatrix(self):
 		#Quantidade de Linhas/Colunas
@@ -143,7 +161,7 @@ class NeighbourJoining():
 			for i in range(1, len(self.Mdu)):
 				self.aux[i][0] = (self.du[i-1])
 		else:
-			print(self.du)
+			pass#print(self.du)
 
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
 		self.dx = np.delete(self.dx,self.node.uPositions[1], 1)
@@ -160,7 +178,8 @@ class NeighbourJoining():
 					self.Mdu[i][j] = self.dx[i][j-1]
 		
 		#print(self.Mdu)
-		self.nodes.append(self.node.uPositions[::-1])
+		#self.nodes.append(self.node.uPositions[::-1])
+		#self.nodes.append(self.node.__dict__)
 		self.d = self.Mdu
 		#print(self.Mdu)
 		self.n = self.n -1
