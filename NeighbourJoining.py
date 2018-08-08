@@ -37,16 +37,20 @@ class NeighbourJoining():
 
 		self.n = len(self.d[0])
 		#self.n = 3
+		self.positions = [i for i in range(0, self.n)]
+		print("positions: "+str(self.positions))
 
+		cont = 1 # indica qual o node U a esta sendo calculado
 		while self.n > 2:
 			self.differenceMatrix()
 			self.stepOne()
 			self.stepTwo()
 			self.stepThree()
 			self.stepFour()
-			self.stepFive()
+			self.stepFive(cont)
+			cont += 1
 
-		print(self.nodes)
+			print("Nodes: "+str(self.nodes))
 
 		# Generate a random tree (yule process)
 		#t = Tree("((((a,b), c), d), (e,f));")
@@ -124,6 +128,7 @@ class NeighbourJoining():
 	Compute the branch lenghts from node U to A and B
 	'''
 	def stepFour(self):
+		print("\nStep Four")
 		p1 = self.d[self.min[0]][self.min[1]]
 
 		#print(self.r)
@@ -139,8 +144,10 @@ class NeighbourJoining():
 
 	'''
 	Step Five com problemas
+	Cont = Counter of the U-node to be calculated
 	'''
-	def stepFive(self):
+	def stepFive(self, cont):
+		print("\nStep Five")
 		self.du = []
 
 		dAB = self.d[self.min[0]][self.min[1]]		
@@ -149,15 +156,12 @@ class NeighbourJoining():
 				daCdbC = self.d[i][self.min[1]] + self.d[i][self.min[0]]
 				self.du.append( (daCdbC - dAB)/2 )
 	
-		#print(self.du)		
-		
 		self.Mdu = np.zeros([self.TAM-1, self.TAM-1])
 		self.aux = np.zeros([self.TAM-1, 1])
 
+		for i in range(0, len(self.du)):
+			self.Mdu[i+1][0] = self.du[i]
 
-		'''
-		Erro aqui, página 169 self.du[i-1] index out of range
-		'''
 		if len(self.du) > 2:
 			for i in range(1, len(self.Mdu)):
 				self.aux[i][0] = self.du[i-1]
@@ -181,11 +185,19 @@ class NeighbourJoining():
 		
 		print(self.n)
 		print(self.Mdu)
-		self.nodes.append(self.node.uPositions[::-1])
+		self.nodes.append([self.positions[self.node.uPositions[1]],self.positions[self.node.uPositions[0]]])
 		#self.nodes.append(self.node.__dict__)
 		self.d = self.Mdu
 		#print(self.Mdu)
 		self.n = self.n -1
+
+		auxPosit = [cont*-1,]
+		for i in range(0,self.TAM):
+			if i != self.min[0] and i != self.min[1]:
+				auxPosit.append(self.positions[i])
+
+		self.positions = auxPosit
+		print("positions: "+str(self.positions))
 
 		'''
 		A = np.delete(A, 1, 0)  # delete second row of A
