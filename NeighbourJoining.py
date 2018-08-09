@@ -8,23 +8,21 @@ from ete3 import Tree
 from Tree import Tree
 
 class NeighbourJoining():
-	def __init__(self, labels, sequencias):
-		self.nodes = []
-		self.labels = labels
-		self.sequencias = sequencias
+	'''
+	Phylogenetic tree reconstrution class
+	'''
+	def __init__(self, labels, sequences):
+		self.nodes = [] 
+		self.labels = labels #  sequence names
+		self.sequences = sequences
 
 	def execute(self):
+		tree = Tree() # Set of functions for building the tree
+		tree.normalizesMatrix(self.sequences)
+		tree.generateMatrixDistances()
+		self.d = tree.d #Distance matrix
 
-
-		tree = Tree()
-		#print(self.sequencias)
-		tree.normalizarMatriz(self.sequencias)
-		tree.gerarMatrizDistancias()
-		#print(tree.d)
-		self.d = tree.d
-
-
-		#Super Teste
+		#Difecen Matrix
 		self.d = [
 		   # A  B  C  D  E  F
 			[0, 0, 0, 0, 0, 0],	#A
@@ -36,11 +34,10 @@ class NeighbourJoining():
 		]
 
 		self.n = len(self.d[0])
-		#self.n = 3
-		self.positions = [i for i in range(0, self.n)]
-		print("positions: "+str(self.positions))
+		self.mappedPositions = [i for i in range(0, self.n)] #Mapped nodes positions
+		print("Mapped positions: "+str(self.mappedPositions))
 
-		cont = 1 # indica qual o node U a esta sendo calculado
+		cont = 1 #Number of the node to calculate
 		while self.n > 2:
 			self.differenceMatrix()
 			self.stepOne()
@@ -50,31 +47,33 @@ class NeighbourJoining():
 			self.stepFive(cont)
 			cont += 1
 
-			print("Nodes: "+str(self.nodes))
+		print("Nodes: "+str(self.nodes))
 
-		# Generate a random tree (yule process)
-		#t = Tree("((((a,b), c), d), (e,f));")
-		#t.populate(8, names_library=list('ABCDEFGHIJKL'), random_branches=True)
-		#t.render('tree.png', dpi=200)
-
+	'''
+	Computes the difference matrix
+	'''
 	def differenceMatrix(self):
 		#Quantidade de Linhas/Colunas
-		self.TAM = len(self.d[0])
+		self.TAM = len(self.d[0]) #Matrix size
 
+	'''
+	Sums all distances from sequences 	
+	'''
 	def sumAllDistances(self, col):
-		somaLinha = 0
-		somaCol = 0
+		sumRow = 0
+		sumCol = 0
 
 		for i in range(0,col):
-			somaLinha += self.d[col][i]
-			#print("Col: %s\n" %(self.d[col][i]))
+			sumRow += self.d[col][i]
 
 		for j in range(col+1,self.TAM):
-			somaCol += self.d[j][col]
-			#print("Linha: %s\n" %(self.d[j][col]))
+			sumCol += self.d[j][col]
 			
-		return (somaLinha + somaCol)
+		return (sumRow + sumCol)
 
+	'''
+	Find the smaller element in the matrix
+	'''
 	def minMatrix(self):
 		minimum = 10000
 		self.min = np.zeros(2).astype(int)
@@ -89,40 +88,27 @@ class NeighbourJoining():
 	Compute the net divergence r for every endonde(N = 6)
 	'''
 	def stepOne(self):
-
-		self.r = []
-
+		self.r = [] #Compute the net divergence r
 		for i in range(0,self.TAM):
 			self.r.append(self.sumAllDistances(i))
-
-		#print(self.r)
-	#Complete
-
 
 	'''
 	Create a rate-corrected distance matrix;
 	The elements are defined by Mi = dij - (ri+rj)/(N-2)
 	'''
 	def stepTwo(self):
-		self.m = np.zeros([self.TAM, self.TAM])
-
-		#print(self.m)
+		self.m = np.zeros([self.TAM, self.TAM]) #M matrix
 
 		for i in range(1,self.TAM):
 			for j in range(0,self.TAM-1):
 				if j < i:
 					self.m[i][j] = self.d[i][j] - (self.r[i] + self.r[j])/(self.TAM-2)
-					#print("M(%d,%d)=%s -[%s + %s]/(%s) = %s" %(i,j,self.d[i][j], self.r[i], self.r[j],self.TAM-2,self.m[i][j]) )
-		
-		#print(self.m)
-	#Complete
 
 	'''
 	Define a new node that groups OTUs(Operational Taxonomic Units) i and j for which Mj is minimal
 	'''
 	def stepThree(self):
 		self.minMatrix()
-	#Complete
 
 	'''
 	Compute the branch lenghts from node U to A and B
@@ -131,16 +117,15 @@ class NeighbourJoining():
 		print("\nStep Four")
 		p1 = self.d[self.min[0]][self.min[1]]
 
-		#print(self.r)
+		#Compute the branch lengths from node U
 		sumU1 = p1/2 + (self.r[0] - self.r[1])/(2*(self.TAM-2))
 		sumU2 = p1 - sumU1
 		
-		print("Sau1: %s\n" %(sumU1))
-		print("Sbu1: %s\n" %(sumU2))
+		print("Sau1: %s\nSbu1: %s" %(sumU1, sumU2))
 		
-		distancias = [sumU1,sumU2]
-		posicoes = [self.min[0], self.min[1]]
-		self.node = Node(distancias, posicoes)
+		distances = [sumU1,sumU2]
+		positions = [self.min[0], self.min[1]]
+		self.node = Node(distances, positions) #Stores computed nodes
 
 	'''
 	Step Five com problemas
@@ -148,26 +133,36 @@ class NeighbourJoining():
 	'''
 	def stepFive(self, cont):
 		print("\nStep Five")
-		self.du = []
+		self.diu = [] #Compute new distances from node U to each other terminal node 
 
-		dAB = self.d[self.min[0]][self.min[1]]		
+		dAB = self.d[self.min[0]][self.min[1]]
 		for i in range(1,self.TAM):
 			if i != self.min[0] and i != self.min[1]:
-				daCdbC = self.d[i][self.min[1]] + self.d[i][self.min[0]]
-				self.du.append( (daCdbC - dAB)/2 )
-	
-		self.Mdu = np.zeros([self.TAM-1, self.TAM-1])
-		self.aux = np.zeros([self.TAM-1, 1])
+				# Diu = (dAi + dBi - dAB)/2
+				dAi = self.d[i][self.min[1]]
+				dBi = self.d[i][self.min[0]]
+				self.diu.append((dAi + dBi - dAB)/2)
+		
+		'''
+		New matrix size (self.TAM-1)
+		'''
+		self.modifiedDistanceMatrix = np.zeros([self.TAM-1, self.TAM-1])
+		
+		'''
+		Create matrix Mx1 which stores U values
+		x (line) and 1 (column)
+		'''
+		self.columnU = np.zeros([self.TAM-1, 1])
 
-		for i in range(0, len(self.du)):
-			self.Mdu[i+1][0] = self.du[i]
+		for i in range(0, len(self.diu)):
+			self.modifiedDistanceMatrix[i+1][0] = self.diu[i]
 
-		if len(self.du) > 2:
-			for i in range(1, len(self.Mdu)):
-				self.aux[i][0] = self.du[i-1]
+		if len(self.diu) > 2:
+			for i in range(1, len(self.modifiedDistanceMatrix)):
+				self.columnU[i][0] = self.diu[i-1]
 		
 		print(self.n)
-		print(self.aux)
+		print(self.columnU)
 
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
 		self.dx = np.delete(self.dx,self.node.uPositions[1], 1)
@@ -176,28 +171,28 @@ class NeighbourJoining():
 		self.dx = np.delete(self.dx,0,0)
 
 		#print(self.dx)
-		for i in range(1, len(self.Mdu)):
-			for j in range(len(self.Mdu)-1):
+		for i in range(1, len(self.modifiedDistanceMatrix)):
+			for j in range(len(self.modifiedDistanceMatrix)-1):
 				if j == 0:
-					self.Mdu[i][j] = self.aux[i][j]
-				elif i <= len(self.Mdu):
-					self.Mdu[i][j] = self.dx[i][j-1]
+					self.modifiedDistanceMatrix[i][j] = self.columnU[i][j]
+				elif i <= len(self.modifiedDistanceMatrix):
+					self.modifiedDistanceMatrix[i][j] = self.dx[i][j-1]
 		
 		print(self.n)
-		print(self.Mdu)
-		self.nodes.append([self.positions[self.node.uPositions[1]],self.positions[self.node.uPositions[0]]])
+		print(self.modifiedDistanceMatrix)
+		self.nodes.append([self.mappedPositions[self.node.uPositions[1]],self.mappedPositions[self.node.uPositions[0]]])
 		#self.nodes.append(self.node.__dict__)
-		self.d = self.Mdu
-		#print(self.Mdu)
+		self.d = self.modifiedDistanceMatrix
+		#print(self.modifiedDistanceMatrix)
 		self.n = self.n -1
 
 		auxPosit = [cont*-1,]
 		for i in range(0,self.TAM):
 			if i != self.min[0] and i != self.min[1]:
-				auxPosit.append(self.positions[i])
+				auxPosit.append(self.mappedPositions[i])
 
-		self.positions = auxPosit
-		print("positions: "+str(self.positions))
+		self.mappedPositions = auxPosit
+		print("positions: "+str(self.mappedPositions))
 
 		'''
 		A = np.delete(A, 1, 0)  # delete second row of A
