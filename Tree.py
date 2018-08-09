@@ -24,7 +24,7 @@ class Tree():
 	Inicializa de forma randomica o chromosome, adicionando gaps a direita de cada linha
 	até que todos tenham o mesmo comprimento
 	"""
-	def normalizarMatriz(self, matrix):
+	def normalizesMatrix(self, matrix):
 		self.maxMatriz(matrix)
 		for row in range(0, len(matrix)):
 			while len(matrix[row]) < self.maximo:
@@ -34,7 +34,7 @@ class Tree():
 		self.matriz = matrix
 		#return matrix
 
-	def gerarMatrizDistancias(self):
+	def generateMatrixDistances(self):
 		self.d = np.zeros([len(self.matriz),len(self.matriz)])
 
 		strlen = len(self.matriz[0])
