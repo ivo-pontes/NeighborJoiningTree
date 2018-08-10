@@ -77,6 +77,7 @@ class NeighbourJoining():
 	'''
 	def minMatrix(self):
 		minimum = math.inf #Set infinity
+
 		self.min = np.zeros(2).astype(int)
 		for i in range(1,self.TAM):
 			for j in range(0,self.TAM-1):
@@ -148,12 +149,12 @@ class NeighbourJoining():
 				self.diu.append((dAi + dBi - dAB)/2)
 		
 		'''
-		New matrix size (self.TAM-1)
+		New matrix - size: (self.TAM-1)
 		'''
 		self.modifiedDistanceMatrix = np.zeros([self.TAM-1, self.TAM-1])
 		
 		'''
-		Create matrix Mx1 which stores U values
+		Creates matrix Mx1 which stores U values
 		x (line) and 1 (column)
 		'''
 		self.columnU = np.zeros([self.TAM-1, 1])
@@ -167,10 +168,11 @@ class NeighbourJoining():
 		
 		print("Column U:\n{}\n".format(self.columnU))
 
+		# Delete first column. ex: A
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
+		# Delete second column. ex: D
 		self.dx = np.delete(self.dx,self.node.uPositions[1], 1)
-		
-
+		# Delete lines with zero : [0 0 0 0 0]
 		self.dx = np.delete(self.dx,0,0)
 
 		for i in range(1, len(self.modifiedDistanceMatrix)):
@@ -186,7 +188,11 @@ class NeighbourJoining():
 		self.d = self.modifiedDistanceMatrix
 		self.n = self.n -1
 
-		auxPosit = [cont*-1,]
+		'''
+		Auxilliar Array which stores the new node positions which
+		append the new node represented by: cont*(-1) aka U value(negative)
+		'''
+		auxPosit = [cont*(-1),]
 		for i in range(0,self.TAM):
 			if i != self.min[0] and i != self.min[1]:
 				auxPosit.append(self.mappedPositions[i])
