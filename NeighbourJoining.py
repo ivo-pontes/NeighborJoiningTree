@@ -6,6 +6,7 @@ import numpy as np
 from Node import Node
 from ete3 import Tree
 from Tree import Tree
+import math
 
 class NeighbourJoining():
 	'''
@@ -22,7 +23,7 @@ class NeighbourJoining():
 		tree.generateMatrixDistances()
 		self.d = tree.d #Distance matrix
 
-		#Difecen Matrix
+		#Set the Distance Matrix to test
 		self.d = [
 		   # A  B  C  D  E  F
 			[0, 0, 0, 0, 0, 0],	#A
@@ -47,13 +48,13 @@ class NeighbourJoining():
 			self.stepFive(cont)
 			cont += 1
 
+		print("Reconstruction of the phylogenetic tree was completed.")
 		print("Nodes: "+str(self.nodes))
 
 	'''
 	Computes the difference matrix
 	'''
 	def differenceMatrix(self):
-		#Quantidade de Linhas/Colunas
 		self.TAM = len(self.d[0]) #Matrix size
 
 	'''
@@ -75,7 +76,7 @@ class NeighbourJoining():
 	Find the smaller element in the matrix
 	'''
 	def minMatrix(self):
-		minimum = 10000
+		minimum = math.inf #Set infinity
 		self.min = np.zeros(2).astype(int)
 		for i in range(1,self.TAM):
 			for j in range(0,self.TAM-1):
@@ -88,6 +89,7 @@ class NeighbourJoining():
 	Compute the net divergence r for every endonde(N = 6)
 	'''
 	def stepOne(self):
+		#print("------Step One------")
 		self.r = [] #Compute the net divergence r
 		for i in range(0,self.TAM):
 			self.r.append(self.sumAllDistances(i))
@@ -97,6 +99,7 @@ class NeighbourJoining():
 	The elements are defined by Mi = dij - (ri+rj)/(N-2)
 	'''
 	def stepTwo(self):
+		#print("------Step Two------")
 		self.m = np.zeros([self.TAM, self.TAM]) #M matrix
 
 		for i in range(1,self.TAM):
@@ -114,14 +117,15 @@ class NeighbourJoining():
 	Compute the branch lenghts from node U to A and B
 	'''
 	def stepFour(self):
-		print("\nStep Four")
+		#print("------Step Four------")
 		p1 = self.d[self.min[0]][self.min[1]]
 
 		#Compute the branch lengths from node U
 		sumU1 = p1/2 + (self.r[0] - self.r[1])/(2*(self.TAM-2))
 		sumU2 = p1 - sumU1
 		
-		print("Sau1: %s\nSbu1: %s" %(sumU1, sumU2))
+		print("Sum of the distance of the node")
+		print("Sau1: {}\nSbu1: {}\n".format(sumU1, sumU2))
 		
 		distances = [sumU1,sumU2]
 		positions = [self.min[0], self.min[1]]
@@ -132,7 +136,7 @@ class NeighbourJoining():
 	Cont = Counter of the U-node to be calculated
 	'''
 	def stepFive(self, cont):
-		print("\nStep Five")
+		print("------Step Five------")
 		self.diu = [] #Compute new distances from node U to each other terminal node 
 
 		dAB = self.d[self.min[0]][self.min[1]]
@@ -161,8 +165,7 @@ class NeighbourJoining():
 			for i in range(1, len(self.modifiedDistanceMatrix)):
 				self.columnU[i][0] = self.diu[i-1]
 		
-		print(self.n)
-		print(self.columnU)
+		print("Column U:\n{}\n".format(self.columnU))
 
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
 		self.dx = np.delete(self.dx,self.node.uPositions[1], 1)
@@ -170,7 +173,6 @@ class NeighbourJoining():
 
 		self.dx = np.delete(self.dx,0,0)
 
-		#print(self.dx)
 		for i in range(1, len(self.modifiedDistanceMatrix)):
 			for j in range(len(self.modifiedDistanceMatrix)-1):
 				if j == 0:
@@ -178,12 +180,10 @@ class NeighbourJoining():
 				elif i <= len(self.modifiedDistanceMatrix):
 					self.modifiedDistanceMatrix[i][j] = self.dx[i][j-1]
 		
-		print(self.n)
-		print(self.modifiedDistanceMatrix)
+		print("Modified Distance Matrix:\n{}\n".format(self.modifiedDistanceMatrix))
+
 		self.nodes.append([self.mappedPositions[self.node.uPositions[1]],self.mappedPositions[self.node.uPositions[0]]])
-		#self.nodes.append(self.node.__dict__)
 		self.d = self.modifiedDistanceMatrix
-		#print(self.modifiedDistanceMatrix)
 		self.n = self.n -1
 
 		auxPosit = [cont*-1,]
@@ -192,10 +192,4 @@ class NeighbourJoining():
 				auxPosit.append(self.mappedPositions[i])
 
 		self.mappedPositions = auxPosit
-		print("positions: "+str(self.mappedPositions))
-
-		'''
-		A = np.delete(A, 1, 0)  # delete second row of A
-		B = np.delete(B, 2, 0)  # delete third row of B
-		C = np.delete(C, 1, 1)  # delete second column of C
-		'''
+		print("Positions: {}\n".format(self.mappedPositions))
