@@ -4,8 +4,8 @@
 from __future__ import division
 import numpy as np
 from Node import Node
-from ete3 import Tree
-from Tree import Tree
+from PhylogeneticTree import PhylogeneticTree
+from PrintTree import PrintTree
 import math
 
 class NeighbourJoining():
@@ -18,7 +18,7 @@ class NeighbourJoining():
 		self.sequences = sequences
 
 	def execute(self):
-		tree = Tree() # Set of functions for building the tree
+		tree = PhylogeneticTree() # Set of functions for building the tree
 		tree.normalizesMatrix(self.sequences)
 		tree.generateMatrixDistances()
 		self.d = tree.d #Distance matrix
@@ -53,8 +53,37 @@ class NeighbourJoining():
 
 		# Maps the last remaining position
 		self.nodes.append(self.mappedPositions)
+		labeledNodes = self.setLabels(self.nodes)
 		print("Reconstruction of the phylogenetic tree was completed.")
-		print("Nodes: "+str(self.nodes))
+		#print("Nodes: "+str(self.nodes))
+		print("Nodes: "+str(labeledNodes))
+
+		printTree = PrintTree()
+		printTree.print(labeledNodes)
+		#printTree.print(self.nodes)
+
+
+	'''
+	Change Node Values to the respective labels
+	'''
+	def setLabels(self, nodes):
+		remap = []
+		for i in range(len(nodes)):
+			if nodes[i][0] >= 0 and nodes[i][1] >= 0:
+			 	i0 = self.labels[nodes[i][0]]
+			 	i1 = self.labels[nodes[i][1]]
+			elif nodes[i][0] >= 0:
+				i0 = self.labels[nodes[i][0]]
+				i1 = nodes[i][1]
+			elif nodes[i][1] >= 0:
+				i0 = nodes[i][0]
+				i1 = self.labels[nodes[i][1]]
+			else:
+				i0 = nodes[i][0]
+				i1 = nodes[i][1]
+
+			remap.append([i0,i1])
+		return remap
 
 	'''
 	Computes the difference matrix

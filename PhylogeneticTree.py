@@ -5,7 +5,7 @@
 from random import randint
 import numpy as np
 
-class Tree():
+class PhylogeneticTree():
 	'''
 	A set of utilitarian methods for the reconstruction of phylogenetic trees
 	'''
