@@ -35,6 +35,7 @@ class NeighbourJoining():
 		]
 
 		self.n = len(self.d[0])
+		lastPosition = len(self.d[0])-1
 		self.mappedPositions = [i for i in range(0, self.n)] #Mapped nodes positions
 		print("Mapped positions: "+str(self.mappedPositions))
 
@@ -47,7 +48,8 @@ class NeighbourJoining():
 			self.stepFour()
 			self.stepFive(cont)
 			cont += 1
-
+		#									position(m-1): F
+		self.nodes.append([(lastPosition-1)*(-1), lastPosition])
 		print("Reconstruction of the phylogenetic tree was completed.")
 		print("Nodes: "+str(self.nodes))
 
@@ -183,6 +185,7 @@ class NeighbourJoining():
 					self.modifiedDistanceMatrix[i][j] = self.dx[i][j-1]
 		
 		print("Modified Distance Matrix:\n{}\n".format(self.modifiedDistanceMatrix))
+
 
 		self.nodes.append([self.mappedPositions[self.node.uPositions[1]],self.mappedPositions[self.node.uPositions[0]]])
 		self.d = self.modifiedDistanceMatrix

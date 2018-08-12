@@ -14,15 +14,5 @@ if __name__ == '__main__':
 	nj = NeighbourJoining(files.getLabels(), files.getSequencias())
 	nj.execute()
 
-	'''
-	matrix = [
-		"AGCCTGAAGCTTTAGCCC",
-		"AGTTCACGT",
-		"ATCCCGAATTGA",
-		"GGCTAAAGTCATGA"
-	]
-	util = Utils()
-	print(util.normalizaMatrix(matrix))
-	'''
 
 	print("Fim de execução!!")
