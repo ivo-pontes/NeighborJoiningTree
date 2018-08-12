@@ -22,8 +22,9 @@ class NeighbourJoining():
 		tree.normalizesMatrix(self.sequences)
 		tree.generateMatrixDistances()
 		self.d = tree.d #Distance matrix
-
+		print(self.d)
 		#Set the Distance Matrix to test
+		'''
 		self.d = [
 		   # A  B  C  D  E  F
 			[0, 0, 0, 0, 0, 0],	#A
@@ -33,9 +34,9 @@ class NeighbourJoining():
 			[6, 9, 6, 5, 0, 0],	#E
 			[8, 11, 8, 9, 8, 0] #F
 		]
+		'''
 
 		self.n = len(self.d[0])
-		lastPosition = len(self.d[0])-1
 		self.mappedPositions = [i for i in range(0, self.n)] #Mapped nodes positions
 		print("Mapped positions: "+str(self.mappedPositions))
 
@@ -48,8 +49,10 @@ class NeighbourJoining():
 			self.stepFour()
 			self.stepFive(cont)
 			cont += 1
-		#									position(m-1): F
-		self.nodes.append([(lastPosition-1)*(-1), lastPosition])
+
+
+		# Maps the last remaining position
+		self.nodes.append(self.mappedPositions)
 		print("Reconstruction of the phylogenetic tree was completed.")
 		print("Nodes: "+str(self.nodes))
 
@@ -92,7 +95,7 @@ class NeighbourJoining():
 	Compute the net divergence r for every endonde(N = 6)
 	'''
 	def stepOne(self):
-		#print("------Step One------")
+		print("------Step One------")
 		self.r = [] #Compute the net divergence r
 		for i in range(0,self.TAM):
 			self.r.append(self.sumAllDistances(i))
@@ -102,7 +105,7 @@ class NeighbourJoining():
 	The elements are defined by Mi = dij - (ri+rj)/(N-2)
 	'''
 	def stepTwo(self):
-		#print("------Step Two------")
+		print("------Step Two------")
 		self.m = np.zeros([self.TAM, self.TAM]) #M matrix
 
 		for i in range(1,self.TAM):
@@ -140,15 +143,17 @@ class NeighbourJoining():
 	'''
 	def stepFive(self, cont):
 		print("------Step Five------")
+		print("------Iteration: {}\n".format(cont))
 		self.diu = [] #Compute new distances from node U to each other terminal node 
 
 		dAB = self.d[self.min[0]][self.min[1]]
-		for i in range(1,self.TAM):
+		for i in range(0,self.TAM):
 			if i != self.min[0] and i != self.min[1]:
 				# Diu = (dAi + dBi - dAB)/2
 				dAi = self.d[i][self.min[1]]
 				dBi = self.d[i][self.min[0]]
 				self.diu.append((dAi + dBi - dAB)/2)
+				#print((dAi + dBi - dAB)/2)
 		
 		'''
 		New matrix - size: (self.TAM-1)
@@ -164,12 +169,16 @@ class NeighbourJoining():
 		for i in range(0, len(self.diu)):
 			self.modifiedDistanceMatrix[i+1][0] = self.diu[i]
 
+		
+		print("Diu:\n {}\n".format(self.diu))
+		
 		if len(self.diu) > 2:
 			for i in range(1, len(self.modifiedDistanceMatrix)):
+				#print("MDM: {}\nDiu: {}".format(len(self.modifiedDistanceMatrix),self.diu))
 				self.columnU[i][0] = self.diu[i-1]
 		
 		print("Column U:\n{}\n".format(self.columnU))
-
+		
 		# Delete first column. ex: A
 		self.dx = np.delete(self.d,self.node.uPositions[0], 1)
 		# Delete second column. ex: D
@@ -177,15 +186,11 @@ class NeighbourJoining():
 		# Delete lines with zero : [0 0 0 0 0]
 		self.dx = np.delete(self.dx,0,0)
 
-		for i in range(1, len(self.modifiedDistanceMatrix)):
-			for j in range(len(self.modifiedDistanceMatrix)-1):
-				if j == 0:
-					self.modifiedDistanceMatrix[i][j] = self.columnU[i][j]
-				elif i <= len(self.modifiedDistanceMatrix):
-					self.modifiedDistanceMatrix[i][j] = self.dx[i][j-1]
+		
+		self.modifiedDistanceMatrix = np.concatenate([self.columnU,self.dx], axis=1)
 		
 		print("Modified Distance Matrix:\n{}\n".format(self.modifiedDistanceMatrix))
-
+		
 
 		self.nodes.append([self.mappedPositions[self.node.uPositions[1]],self.mappedPositions[self.node.uPositions[0]]])
 		self.d = self.modifiedDistanceMatrix
